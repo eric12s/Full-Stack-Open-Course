@@ -11,10 +11,7 @@ const AnecdoteList = () => {
 
   const vote = (id, content) => {
     dispatch(addVote(id))
-    dispatch(setNotification(`You voted '${content}'`))
-    setTimeout(() => {
-      dispatch(setNotification(''))
-    }, 5000)
+    dispatch(setNotification(`You voted '${content}'`, 5))
   }
 
   const compareAnecdotes = (a, b) => a.props.children[1].props.children[1] - b.props.children[1].props.children[1]

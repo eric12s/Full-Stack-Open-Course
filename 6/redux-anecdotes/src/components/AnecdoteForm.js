@@ -5,15 +5,13 @@ import { setNotification } from '../reducers/notificationReducer'
 const AnecdoteFrom = () => {
   const dispatch = useDispatch()
 
-  const addAnecdote = (event) => {
+  const addAnecdote = async (event) => {
     event.preventDefault()
     const content = event.target.content.value
     event.target.content.value = ''
     dispatch(createAnecdote(content))
-    dispatch(setNotification(`You successfully created ${content}`))
-    setTimeout(() => {
-      dispatch(setNotification(''))
-    }, 5000)
+    dispatch(setNotification(`You successfully created ${content}`, 5))
+    
   }
 
   return(

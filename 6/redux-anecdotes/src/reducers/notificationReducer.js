@@ -1,10 +1,20 @@
-export const setNotification = (content) => {
-  return ({
-    type: 'SET',
-    data: {
-      content
-    }
-  })
+export const setNotification = (content, sec) => {
+  return async dispatch => {
+    dispatch({
+      type: 'SET',
+      data: {
+        content
+      }
+    })
+    setTimeout(() => {
+      dispatch({
+        type: 'SET',
+        data: {
+          content: ''
+        }
+      })
+    }, sec * 1000)
+  }
 }
 
 const initialState = 'Welcome to Anecdotes App'
