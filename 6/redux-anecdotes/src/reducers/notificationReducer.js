@@ -1,12 +1,15 @@
+let clear = null
+
 export const setNotification = (content, sec) => {
   return async dispatch => {
+    if(clear) clearTimeout(clear)
     dispatch({
       type: 'SET',
       data: {
         content
       }
     })
-    setTimeout(() => {
+    clear = setTimeout(() => {
       dispatch({
         type: 'SET',
         data: {
