@@ -1,4 +1,10 @@
 import React, { useState } from 'react'
+import {
+  Switch, Route, Link,
+  useRouteMatch, useHistory
+} from "react-router-dom"
+import Anecdote from './components/Anecdote'
+import  { useField } from './hooks'
 
 const Menu = () => {
   const padding = {
@@ -6,9 +12,9 @@ const Menu = () => {
   }
   return (
     <div>
-      <a href='#' style={padding}>anecdotes</a>
-      <a href='#' style={padding}>create new</a>
-      <a href='#' style={padding}>about</a>
+      <Link to='/' style={padding}>anecdotes</Link>
+      <Link to='/create' style={padding}>create new</Link>
+      <Link to='/about' style={padding}>about</Link>
     </div>
   )
 }
@@ -17,7 +23,10 @@ const AnecdoteList = ({ anecdotes }) => (
   <div>
     <h2>Anecdotes</h2>
     <ul>
-      {anecdotes.map(anecdote => <li key={anecdote.id} >{anecdote.content}</li>)}
+      {anecdotes.map(anecdote => 
+        <li key={anecdote.id} >
+          <Link to={`/anecdotes/${anecdote.id}`} >{anecdote.content}</Link>
+        </li>)}
     </ul>
   </div>
 )
@@ -45,20 +54,41 @@ const Footer = () => (
 )
 
 const CreateNew = (props) => {
-  const [content, setContent] = useState('')
-  const [author, setAuthor] = useState('')
-  const [info, setInfo] = useState('')
-
+  const history = useHistory()
+  const content = useField('text')
+  const author = useField('text')
+  const info = useField('text')
 
   const handleSubmit = (e) => {
     e.preventDefault()
     props.addNew({
-      content,
-      author,
-      info,
+      content: content.value,
+      author: author.value,
+      info: info.value,
       votes: 0
     })
+    
+    history.push('/')
+    props.setNotification(`a new anecdote ${content.value} created!`)
+    setTimeout(() => {
+      props.setNotification('')
+    }, 10000)
   }
+
+  const clearAll = () => {
+    content.clear()
+    author.clear()
+    info.clear()
+  }
+
+  const contentProps = Object.assign({}, content)
+  delete contentProps.clear
+
+  const authorProps = Object.assign({}, author)
+  delete authorProps.clear
+
+  const infoProps = Object.assign({}, info)
+  delete infoProps.clear
 
   return (
     <div>
@@ -66,17 +96,18 @@ const CreateNew = (props) => {
       <form onSubmit={handleSubmit}>
         <div>
           content
-          <input name='content' value={content} onChange={(e) => setContent(e.target.value)} />
+          <input {...contentProps} />
         </div>
         <div>
           author
-          <input name='author' value={author} onChange={(e) => setAuthor(e.target.value)} />
+          <input {...authorProps} />
         </div>
         <div>
           url for more info
-          <input name='info' value={info} onChange={(e)=> setInfo(e.target.value)} />
+          <input {...infoProps} />
         </div>
-        <button>create</button>
+        <button type="submit">create</button>
+        <button type="reset" onClick={clearAll}>reset</button>
       </form>
     </div>
   )
@@ -122,14 +153,34 @@ const App = () => {
     setAnecdotes(anecdotes.map(a => a.id === id ? voted : a))
   }
 
+  const match = useRouteMatch('/anecdotes/:id')
+  const anecdote = match 
+    ? anecdotes.find(anecdote => anecdote.id === match.params.id)
+    : null
+
   return (
     <div>
       <h1>Software anecdotes</h1>
       <Menu />
-      <AnecdoteList anecdotes={anecdotes} />
-      <About />
-      <CreateNew addNew={addNew} />
-      <Footer />
+      {notification}
+      <Switch>
+        <Route path="/anecdotes/:id">
+          <Anecdote anecdote={anecdote} />
+        </Route>
+        <Route path="/create">
+          <CreateNew addNew={addNew} setNotification={setNotification} />
+        </Route>
+        <Route path="/about">
+          <About />
+        </Route>
+        <Route path="/">
+          <AnecdoteList anecdotes={anecdotes} />
+        </Route>
+      </Switch>
+      <div>
+        <br />
+        <Footer />
+      </div>
     </div>
   )
 }
