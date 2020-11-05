@@ -1,3 +1,4 @@
+const { request, response } = require('express')
 const jwt = require('jsonwebtoken')
 
 const blogsRouter = require('express').Router()
@@ -44,6 +45,16 @@ blogsRouter.delete('/:id', async (request, response) => {
     : response.status(404).end()
 })
 
+blogsRouter.put('/:id/comments', async (request, response) => {
+  const body = request.body
+
+  const blog = {
+    comments: body.comments
+  }
+  const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, { new: true, runValidator: true })
+  response.json(updatedBlog)
+})
+
 blogsRouter.put('/:id', async (request, response) => {
   const body = request.body
 
@@ -51,7 +62,8 @@ blogsRouter.put('/:id', async (request, response) => {
     likes: body.likes
   }
 
-  const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog,{ new: true, runValidator: true })
+  const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, { new: true, runValidator: true })
   response.json(updatedBlog)
 })
+
 module.exports = blogsRouter
