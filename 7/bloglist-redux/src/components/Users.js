@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux'
 import Table from 'react-bootstrap/Table'
 import { setUser } from '../reducers/userReducer'
 import { useHistory, Link } from 'react-router-dom'
+import { ArrowLeft } from 'react-bootstrap-icons';
 
 const Users = ({ users }) => {
   const dispatch = useDispatch()
@@ -19,7 +20,7 @@ const Users = ({ users }) => {
   return(
     <div>
       <h2>Users</h2>
-      <Table>
+      <Table striped>
         <thead>
           <tr>
             <th></th>
@@ -36,7 +37,7 @@ const Users = ({ users }) => {
         </tbody>
       </Table>
       <br />
-      <Link to='/'>back</Link>
+      <Link to='/'><ArrowLeft />back</Link>
     </div>
   )
 }

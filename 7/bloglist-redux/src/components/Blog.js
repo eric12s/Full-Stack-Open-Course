@@ -2,6 +2,7 @@ import React from 'react'
 import { useDispatch } from 'react-redux'
 import { removeBlogAct } from '../reducers/blogReducer'
 import { Link } from 'react-router-dom'
+import { Button } from 'react-bootstrap'
 
 const Blog = ({ blog }) => {
   // const [ isVisable, setIsVisable ] = useState(false)
@@ -44,7 +45,7 @@ const Blog = ({ blog }) => {
       {/* <br /> */}
       {/* {`likes ${blog.likes}`} <button onClick={() => updateBlogLike()}>like</button> */}
       <br />
-      <button onClick={() => removeBlog()}>remove</button>
+      <Button variant="danger" size="sm" onClick={() => removeBlog()}>remove</Button>
     </div>
   )
 

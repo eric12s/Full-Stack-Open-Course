@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react'
 import { useHistory, Link } from 'react-router-dom'
+import { ArrowLeft } from 'react-bootstrap-icons';
 
 const User = ({ userToShow }) => {
   const history = useHistory()
@@ -7,7 +8,7 @@ const User = ({ userToShow }) => {
   useEffect(() => {
     if (!userToShow)
       history.push('/users')
-  }, [])
+  }, [userToShow, history])
 
   if(!userToShow)
     return null
@@ -21,7 +22,7 @@ const User = ({ userToShow }) => {
           <li key={blog.id}>{blog.title}</li>
         ))}
       </ul>
-      <Link to='/users'>back</Link>
+      <Link to='/users'><ArrowLeft/>back</Link>
     </div>
   )
 }

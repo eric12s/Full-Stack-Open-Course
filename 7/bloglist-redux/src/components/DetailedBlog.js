@@ -4,6 +4,8 @@ import { useDispatch } from 'react-redux'
 import { updateBlog } from '../reducers/blogReducer'
 import { Link, useHistory } from 'react-router-dom'
 import Comments from './Comments'
+import { Button } from 'react-bootstrap'
+import { HandThumbsUp, ArrowLeft } from 'react-bootstrap-icons';
 
 const DetailedBlog = ({ blog }) => {
   const dispatch = useDispatch()
@@ -12,7 +14,7 @@ const DetailedBlog = ({ blog }) => {
   useEffect(() => {
     if (!blog)
       history.push('/')
-  }, [])
+  }, [blog, history])
 
   const updateBlogLike = async () => {
     const newLikes = blog.likes += 1
@@ -33,10 +35,10 @@ const DetailedBlog = ({ blog }) => {
       <p>
         {blog.url}
         <br />
-        {blog.likes} likes <button onClick={() => updateBlogLike()}>like</button>
+        {blog.likes} likes <Button size="sm" onClick={() => updateBlogLike()}><HandThumbsUp /></Button>
       </p>
       <Comments blog={blog} />
-      <Link to='/'>back</Link>
+      <Link to='/'><ArrowLeft />back</Link>
     </div>
   )
 }

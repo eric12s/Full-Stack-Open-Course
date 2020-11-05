@@ -76,7 +76,6 @@ export const removeBlogAct = (blog) => {
 export const addCommentAct = (blog, comment) => {
   return async dispatch => {
     try {
-      console.log('action')
       const res = await blogService.addComment(blog, comment)
       dispatch(setNotification('The comment is added successfully!', 'green', 5))
       dispatch({

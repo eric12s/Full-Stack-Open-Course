@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { addCommentAct } from '../reducers/blogReducer'
 import { useDispatch } from 'react-redux'
+import { Button, Form } from 'react-bootstrap'
 
 const Comments = ({ blog }) => {
   const dispatch = useDispatch()
@@ -8,17 +9,16 @@ const Comments = ({ blog }) => {
 
   const addComment = (event) => {
     event.preventDefault()
-    console.log('handle submit')
     dispatch(addCommentAct(blog, comment))
   }
 
   return(
     <div>
       <h3>comments</h3>
-      <form onSubmit={addComment}>
-        <input value={comment} onChange={(e) => setcomment(e.target.value)} />
-        <button type='submit'>add comment</button>
-      </form>
+      <Form onSubmit={addComment}>
+        <Form.Control value={comment} onChange={(e) => setcomment(e.target.value)} />
+        <Button type='submit'>add comment</Button>
+      </Form>
       <ul>
         {blog.comments ? blog.comments.map(comment => <li key={comment}>{comment}</li>) : null}
       </ul>

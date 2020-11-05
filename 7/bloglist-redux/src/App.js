@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Route, Switch, Link, useRouteMatch } from 'react-router-dom'
+import { Route, Switch, useRouteMatch } from 'react-router-dom'
 import Notification from './components/Notification'
 import userService from './services/users'
 import { initializeBlogs } from './reducers/blogReducer'
@@ -11,6 +11,8 @@ import Users from './components/Users'
 import BlogsList from './components/BlogsList'
 import DetailedBlog from './components/DetailedBlog'
 import Navigation from './components/Navigation'
+// import Form from 'react-bootstrap/Form'
+import { Form, Button } from 'react-bootstrap'
 
 const App = () => {
   const dispatch = useDispatch()
@@ -31,7 +33,7 @@ const App = () => {
       const user = JSON.parse(loggedUserJSON)
       dispatch(setUser(user))
     }
-  }, [])
+  }, [dispatch])
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -71,28 +73,36 @@ const App = () => {
   const blogToShow = blogMatch
     ? blogs.find(blog => blog.id === blogMatch.params.id)
     : null
-  console.log(blogToShow)
+
   return (
     user === null
       ? (
-        <div>
+        <div className="container">
           <h2>Log in to application</h2>
           <Notification />
-          <form onSubmit={handleClick}>
-            <label>
-            username: <input id='username' type="text" name="name" value={username} onChange={changeUsername}/>
-            </label>
-            <br />
-            <label>
-            password: <input id='password' type="password" name="password" value={password} onChange={changePassword}/>
-            </label>
-            <br />
-            <button id='login-button' type="submit">login</button>
-          </form>
+          <Form onSubmit={handleClick}>
+            <Form.Row>
+              <Form.Label>username:</Form.Label>
+              <Form.Control
+                type="text"
+                name="name"
+                value={username}
+                onChange={changeUsername}
+              />
+              <Form.Label>password:</Form.Label>
+              <Form.Control
+                type="password"
+                name="password"
+                value={password}
+                onChange={changePassword}
+              />
+            </Form.Row>
+            <Button id='login-button' variant="primary" type="submit">login</Button>
+          </Form>
         </div>
       )
       : (
-        <div>
+        <div className="container">
           <Navigation user={user} handleLogout={handleLogout} />
           <h2>blogs</h2>
           <Notification />
