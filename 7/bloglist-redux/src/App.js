@@ -1,64 +1,51 @@
-import React, { useState, useEffect, useRef } from 'react'
-import Blog from './components/Blog'
-import blogService from './services/blogs'
-import loginService from './services/login'
+import React, { useState, useEffect } from 'react'
+import { Route, Switch, Link, useRouteMatch } from 'react-router-dom'
 import Notification from './components/Notification'
-import Togglable from './components/Togglable'
-import BlogForm from './components/BlogForm'
+import userService from './services/users'
+import { initializeBlogs } from './reducers/blogReducer'
+import { useDispatch, useSelector } from 'react-redux'
+import { setNotification } from './reducers/notificationReducer'
+import { loginUser, setUser } from './reducers/userReducer'
+import User from './components/User'
+import Users from './components/Users'
+import BlogsList from './components/BlogsList'
+import DetailedBlog from './components/DetailedBlog'
+import Navigation from './components/Navigation'
 
 const App = () => {
-  const [blogs, setBlogs] = useState([])
-  const [user, setUser] = useState(null)
+  const dispatch = useDispatch()
+  const blogs = useSelector(state => state.blogs)
+  const user = useSelector(state => state.user)
+  const [users, setUsers] = useState([])
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
 
-  const [errorMessage, setErrorMessage] = useState(null)
-  const [errColor, setErrColor] = useState('green')
-
-  const blogFormRef = useRef()
 
   useEffect(() => {
-    blogService.getAll().then(blogs =>
-      setBlogs( blogs )
-    )
-  }, [])
+    dispatch(initializeBlogs())
+  }, [dispatch])
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON)
-      setUser(user)
-      blogService.setToken(user.token)
+      dispatch(setUser(user))
     }
   }, [])
 
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const users = await userService.getAll()
+      setUsers(users)
+    }
+    fetchUsers()
+  }, [blogs])
+
   const handleClick = async (event) => {
     event.preventDefault()
-    try {
-      const user = await loginService.login({
-        username, password,
-      })
-      window.localStorage.setItem(
-        'loggedBlogappUser', JSON.stringify(user)
-      )
-      blogService.setToken(user.token)
-      setUser(user)
-      setUsername('')
-      setPassword('')
-
-      setErrorMessage(`Welcome, ${user.name}`)
-      setErrColor('green')
-      setTimeout(() => {
-        setErrorMessage(null)
-      }, 5000)
-    } catch (e){
-      console.log(e)
-      setErrorMessage('Can\'t log in!')
-      setErrColor('red')
-      setTimeout(() => {
-        setErrorMessage(null)
-      }, 5000)
-    }
+    dispatch(loginUser(username, password))
+    setUsername('')
+    setPassword('')
   }
 
   const changeUsername = (event) => {
@@ -71,48 +58,26 @@ const App = () => {
 
   const handleLogout = () => {
     window.localStorage.removeItem('loggedBlogappUser')
-    setUser(null)
-    setErrorMessage('You logged out succesfully')
-    setErrColor('green')
-    setTimeout(() => {
-      setErrorMessage(null)
-    }, 5000)
+    dispatch(setUser(null))
+    dispatch(setNotification('You logged out succesfully', 'green', 5))
   }
 
-  const handleBlogSubmit = (blogObject) => {
-    blogFormRef.current.toggleVisibility()
-    blogService
-      .create(blogObject)
-      .then(returnedBlog => {
-        setBlogs(blogs.concat(returnedBlog))
-        setErrorMessage(`a new blog ${returnedBlog.title} by ${returnedBlog.author}`)
-        setErrColor('green')
-        setTimeout(() => {
-          setErrorMessage(null)
-        }, 5000)
-      }).catch(() => {
-        setErrorMessage('Error!')
-        setErrColor('red')
-        setTimeout(() => {
-          setErrorMessage(null)
-        }, 5000)
-      })
-  }
+  const match = useRouteMatch('/users/:id')
+  const userToShow = match
+    ? users.find(user => user.id === match.params.id)
+    : null
 
-  const blogForm = () => (
-    <Togglable buttonLabel='create new blog' ref={blogFormRef}>
-      <BlogForm handleBlogSubmit={handleBlogSubmit} />
-    </Togglable>
-  )
-
-  const compareLikes = (a, b) => b.props.blog.likes - a.props.blog.likes
-
+  const blogMatch = useRouteMatch('/blogs/:id')
+  const blogToShow = blogMatch
+    ? blogs.find(blog => blog.id === blogMatch.params.id)
+    : null
+  console.log(blogToShow)
   return (
     user === null
       ? (
         <div>
           <h2>Log in to application</h2>
-          <Notification message={errorMessage} />
+          <Notification />
           <form onSubmit={handleClick}>
             <label>
             username: <input id='username' type="text" name="name" value={username} onChange={changeUsername}/>
@@ -128,26 +93,27 @@ const App = () => {
       )
       : (
         <div>
+          <Navigation user={user} handleLogout={handleLogout} />
           <h2>blogs</h2>
-          <Notification message={errorMessage} color={errColor}/>
-          <p>{user.name} is logged in <button onClick={handleLogout}>logout</button></p>
-          <div>
-            {blogForm()}
-            <br />
-            <div>
-              {blogs.map(blog => <Blog
-                key={blog.id}
-                blog={blog}
-                update={blogService.update}
-                setErrorMessage={setErrorMessage}
-                setErrColor={setErrColor}
-                remove={blogService.remove}
-                blogs={blogs}
-                setBlogs={setBlogs}
-              />
-              ).sort(compareLikes)}
-            </div>
-          </div>
+          <Notification />
+          <p>
+            {/* {user.name} is logged in <button onClick={handleLogout}>logout</button> */}
+            {/* &nbsp;<Link to='/users'>users</Link> */}
+          </p>
+          <Switch>
+            <Route path='/users/:id'>
+              <User userToShow={userToShow} />
+            </Route>
+            <Route path='/users'>
+              <Users users={users}/>
+            </Route>
+            <Route path='/blogs/:id'>
+              <DetailedBlog blog={blogToShow} />
+            </Route>
+            <Route path='/'>
+              <BlogsList blogs={blogs}/>
+            </Route>
+          </Switch>
         </div>
       )
   )

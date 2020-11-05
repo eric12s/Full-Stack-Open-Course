@@ -1,7 +1,11 @@
-import React, { useState } from 'react'
+import React from 'react'
+import { useDispatch } from 'react-redux'
+import { removeBlogAct } from '../reducers/blogReducer'
+import { Link } from 'react-router-dom'
 
-const Blog = ({ blog, update,  setErrorMessage, setErrColor, remove, blogs, setBlogs }) => {
-  const [ isVisable, setIsVisable ] = useState(false)
+const Blog = ({ blog }) => {
+  // const [ isVisable, setIsVisable ] = useState(false)
+  const dispatch = useDispatch()
 
   const blogStyle = {
     paddingTop: 10,
@@ -11,61 +15,34 @@ const Blog = ({ blog, update,  setErrorMessage, setErrColor, remove, blogs, setB
     marginBottom: 5
   }
 
-  const updateBlog = async () => {
-    const newLikes = blog.likes += 1
-    blog = {
-      ...blog,
-      likes: newLikes
-    }
-    try {
-      await update(blog, blog.id)
-      setBlogs(blogs.filter((item) => item.id !== blog.id).concat(blog))
-    } catch(err) {
-      blog.likes -= 1
-      setErrorMessage(`Can't add a like to ${blog.title}!`)
-      setErrColor('red')
-      setTimeout(() => {
-        setErrorMessage(null)
-      }, 5000)
-    }
-  }
+  // const updateBlogLike = async () => {
+  //   const newLikes = blog.likes += 1
+  //   blog = {
+  //     ...blog,
+  //     likes: newLikes
+  //   }
+  //   dispatch(updateBlog(blog))
+  // }
 
   const removeBlog = async () => {
     const ans = window.confirm(`Remove blog ${blog.title} by ${blog.author}`)
-    if (ans) {
-      try {
-        await remove(blog.id)
-        setBlogs(blogs.filter((item) => item.id !== blog.id))
-        setErrorMessage(`${blog.title} is removed successfully!`)
-        setErrColor('green')
-        setTimeout(() => {
-          setErrorMessage(null)
-        }, 5000)
-      } catch(err) {
-        setErrorMessage(`You can't remove ${blog.title}!`)
-        setErrColor('red')
-        setTimeout(() => {
-          setErrorMessage(null)
-        }, 5000)
-      }
-    }
+    if (ans) dispatch(removeBlogAct(blog))
   }
 
-  const hiddenBlog = () => (
-    <div className='hiddenBlog'>
-      {blog.title} {blog.author} <button onClick={() => setIsVisable(true)}>view</button>
-    </div>
-  )
+  // const hiddenBlog = () => (
+  //   <div className='hiddenBlog'>
+  //     {blog.title} {blog.author} <button onClick={() => setIsVisable(true)}>view</button>
+  //   </div>
+  // )
 
   const visableBlog = () => (
     <div className='visableBlog'>
-      {blog.title} <button onClick={() => setIsVisable(false)}>hide</button>
-      <br />
-      {blog.url}
-      <br />
-      {`likes ${blog.likes}`} <button onClick={() => updateBlog()}>like</button>
-      <br />
-      {blog.author}
+      <Link to={`/blogs/${blog.id}`} >{blog.title} {blog.author}</Link>
+      {/* <button onClick={() => setIsVisable(false)}>hide</button> */}
+      {/* <br /> */}
+      {/* {blog.url} */}
+      {/* <br /> */}
+      {/* {`likes ${blog.likes}`} <button onClick={() => updateBlogLike()}>like</button> */}
       <br />
       <button onClick={() => removeBlog()}>remove</button>
     </div>
@@ -73,9 +50,10 @@ const Blog = ({ blog, update,  setErrorMessage, setErrColor, remove, blogs, setB
 
   return(
     <div style={blogStyle} className='blog'>
-      {isVisable
+      {/* {isVisable
         ? visableBlog()
-        : hiddenBlog()}
+        : hiddenBlog()} */}
+      {visableBlog()}
     </div>)
 }
 
